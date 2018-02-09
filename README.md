@@ -5,6 +5,14 @@
   - GEH MATLAB Code
   - Test files
   
+### Authors
+GEH calculation code V.1
+Erick Andres Perez Alday, PhD, <perezald@ohsu.edu>
+Annabel Li-Pershing, BS, < lipershi@ohsu.edu>
+Muammar Kabir, PhD, < muammar.kabir@gmail.com >
+Larisa Tereshchenko, MD, PhD, < tereshch@ohsu.edu >
+Last update: February 9th, 2018
+  
 ### GEH Calculation
 See pdf file in the repository for GEH parameter calculation methods.
 
