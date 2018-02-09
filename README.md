@@ -20,7 +20,7 @@ See pdf file in the repository for GEH parameter calculation methods.
 See .m file in the repository for GEH parameter calculation. Test file is provided in the test_file folder for algorithm testing.
 
 ### Test file
-One test file is provided for testing. Sampling rate 500 Hz.
+One test file is provided for testing. Sampling rate 500 Hz. Amplitude resolution 1 µV.
 
 ### Manuscript to reference:
 Waks JW, Sitlani CM, Soliman EZ, Kabir M, Ghafoori E, Biggs ML, Henrikson CA, Sotoodehnia N, Biering-Sorensen T, Agarwal SK, Siscovick DS, Post WS, Solomon SD, Buxton AE, Josephson ME and Tereshchenko LG. Global Electric Heterogeneity Risk Score for Prediction of Sudden Cardiac Death in the General Population: The Atherosclerosis Risk in Communities (ARIC) and Cardiovascular Health (CHS) Studies. Circulation. 2016;133:2222-2234.
