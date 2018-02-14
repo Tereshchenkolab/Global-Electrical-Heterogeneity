@@ -1,10 +1,10 @@
 %
-% GEH calculation code V.1
+% GEH calculation code V.1.1
 % Erick Andres Perez Alday, PhD, <perezald@ohsu.edu>
 % Annabel Li-Pershing, BS, < lipershi@ohsu.edu>
 % Muammar Kabir, PhD, < muammar.kabir@gmail.com >
 % Larisa Tereshchenko, MD, PhD, < tereshch@ohsu.edu >
-% Last update: Friday 9th, February 2018
+% Last update:  February 13th, 2018
 
 clear
 clc
@@ -125,7 +125,7 @@ end
 Raxis = XYZ_median(R_VM,:);
 Taxis = XYZ_median(tp_points_VM(1),:);
 
-% ========================== Calculate AUC on VegMag ===========================
+% ========================== Calculate AUC on Vector Magnitude ===========================
 spac_incr = 1000/fs; % spacing increment for trapz calculation
 AUC_VM_QT=0;
 AUC_VM_QT = trapz(abs(VecMag(q_points_VM(1,1):te_points_VM(1,1)))) * spac_incr;
@@ -138,17 +138,18 @@ CP=XYZ_median(OriginPoint_idx,:);
 % Y axis vector
 Ynew=[0,1,0];
 
-% QRS and T mean vector
-meanVxQ=mean(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),1));
-meanVxT=mean(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),1));
-meanVyQ=mean(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),2));
-meanVyT=mean(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),2));
-meanVzQ=mean(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),3));
-meanVzT=mean(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),3));
+% mean spatial QRS and T vectors
+meanVxQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),1)) * spac_incr;
+meanVxT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),1))* spac_incr;
+meanVyQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),2))* spac_incr;
+meanVyT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),2))* spac_incr;
+meanVzQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),3))* spac_incr;
+meanVzT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),3))* spac_incr;
 
-% QRS and T mean vector based on mean
+% QRS and T mean vector 
 MEAN_QRSO=[meanVxQ meanVyQ meanVzQ];
 MEAN_TO=[meanVxT meanVyT meanVzT];
+
 
 % Q-S integral index length
 si_len=length(q_points_VM(1,1):s_points_VM(1,1));
@@ -185,51 +186,55 @@ QRSTang=rad2deg(acos(dot(Raxis,Taxis)/(sqrt(Raxis(1)^2+Raxis(2)^2+Raxis(3)^2)*sq
 % QRS-T mean vector angle
 QRSTang_M=rad2deg(acos(dot(MEAN_QRSO,MEAN_TO)/(sqrt(MEAN_QRSO(1)^2+MEAN_QRSO(2)^2+MEAN_QRSO(3)^2)*sqrt(MEAN_TO(1)^2+MEAN_TO(2)^2+MEAN_TO(3)^2))));
 
-% QRS SVG Angle: peak, mean in amplitude, mean in time
+% QRS SVG Angle: peak, mean in amplitude
 QRSSVGang=rad2deg(acos(dot(Raxis,SVG_axis)/(sqrt(Raxis(1)^2+Raxis(2)^2+Raxis(3)^2)*sqrt(SVG_axis(1)^2+SVG_axis(2)^2+SVG_axis(3)^2))));
 QRSSVGang_M=rad2deg(acos(dot(MEAN_QRSO,SVG_axis_MO)/(sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(2)^2+SVG_axis_MO(3)^2)*sqrt(MEAN_QRSO(1)^2+MEAN_QRSO(2)^2+MEAN_QRSO(3)^2))));
 
-% T SVG Angle: peak, mean in amplitude, mean in time
+% T SVG Angle: peak, mean in amplitude
 SVGTang=rad2deg(acos(dot(SVG_axis,Taxis)/(sqrt(SVG_axis(1)^2+SVG_axis(2)^2+SVG_axis(3)^2)*sqrt(Taxis(1)^2+Taxis(2)^2+Taxis(3)^2))));
 SVGTang_M=rad2deg(acos(dot(SVG_axis_MO,MEAN_TO)/(sqrt(MEAN_TO(1)^2+MEAN_TO(2)^2+MEAN_TO(3)^2)*sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(2)^2+SVG_axis_MO(3)^2))));
 
-% Azimuth of QRS: peak, mean in amplitude, mean in time
+% Azimuth of QRS: peak, mean in amplitude
 AZ_OQ=(rad2deg(acos(Raxis(1)/sqrt(Raxis(1)^2+Raxis(3)^2))))*(((Raxis(3)<0)*-1)+((Raxis(3)>0)*1));
 AZ_OQM=(rad2deg(acos( MEAN_QRSO(1)/sqrt(MEAN_QRSO(1)^2+MEAN_QRSO(3)^2))))*(((MEAN_QRSO(3)<0)*-1)+((MEAN_QRSO(3)>0)*1));
 
-% Azimuth of T: peak, mean in amplitude, mean in time
+% Azimuth of T: peak, mean in amplitude
 AZ_OT=(rad2deg(acos(Taxis(1)/sqrt(Taxis(1)^2+Taxis(3)^2))))*(((Taxis(3)<0)*-1)+((Taxis(3)>0)*1));
 AZ_OTM=(rad2deg(acos(MEAN_TO(1)/sqrt(MEAN_TO(1)^2+MEAN_TO(3)^2))))*(((MEAN_TO(3)<0)*-1)+((MEAN_TO(3)>0)*1));
 
-% Azimuth of SVG: peak, mean in amplitude, mean in time
+% Azimuth of SVG: peak, mean in amplitude
 AZ_SVG=(rad2deg(acos(SVG_axis(1)/sqrt(SVG_axis(1)^2+SVG_axis(3)^2))))*(((SVG_axis(3)<0)*-1)+((SVG_axis(3)>0)*1));
 AZ_SVG_M=(rad2deg(acos(SVG_axis_MO(1)/sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(3)^2))))*(((SVG_axis_MO(3)<0)*-1)+((SVG_axis_MO(3)>0)*1));
 
-% Elevation of QRS: peak, mean in amplitude, mean in time
+% Elevation of QRS: peak, mean in amplitude
 EL_OQ=(rad2deg(acos(dot(Raxis,Ynew)/(sqrt(Raxis(1)^2+Raxis(2)^2+Raxis(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
 EL_OQM=(rad2deg(acos(dot(MEAN_QRSO,Ynew)/(sqrt(MEAN_QRSO(1)^2+MEAN_QRSO(2)^2+MEAN_QRSO(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
 
-% Elevation of T: peak, mean in amplitude, mean in time
+% Elevation of T: peak, mean in amplitude
 EL_OT=(rad2deg(acos(dot(Taxis,Ynew)/(sqrt(Taxis(1)^2+Taxis(2)^2+Taxis(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
 EL_OTM=(rad2deg(acos(dot(MEAN_TO,Ynew)/(sqrt(MEAN_TO(1)^2+MEAN_TO(2)^2+MEAN_TO(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
 
-% Elevation of SVG: peak, mean in amplitude, mean in time
+% Elevation of SVG: peak, mean in amplitude
 EL_SVG=(rad2deg(acos(dot(SVG_axis,Ynew)/(sqrt(SVG_axis(1)^2+SVG_axis(2)^2+SVG_axis(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
 EL_SVG_M=(rad2deg(acos(dot(SVG_axis_MO,Ynew)/(sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(2)^2+SVG_axis_MO(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
 
 
 % ========================== Magnitudes Calculation ============================
-% Magnitude of QRS: peak, mean in amplitude, mean in time
+% Magnitude of spatial peak and mean QRS vectors
 QRS_Mag=sqrt(Raxis(1)^2+Raxis(2)^2+Raxis(3)^2);
 QRS_Mag_M=sqrt(MEAN_QRSO(1)^2+MEAN_QRSO(2)^2+MEAN_QRSO(3)^2);
 
-% Magnitude of T: peak, mean in amplitude, mean in time
+% Magnitude of spatial peak and mean T vectors
 T_Mag=sqrt(Taxis(1)^2+Taxis(2)^2+Taxis(3)^2);
 T_Mag_M=sqrt(MEAN_TO(1)^2+MEAN_TO(2)^2+MEAN_TO(3)^2);
 
-% Magnitude of SVG: peak, mean in amplitude, mean in time
+% Magnitude of spatial peak and mean SVG vectors
 SVG_Mag=sqrt(SVG_axis(1)^2+SVG_axis(2)^2+SVG_axis(3)^2);
-SVG_Mag_M=sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(2)^2+SVG_axis_MO(3)^2);
+SVGx = meanVxQ + meanVxT ;
+SVGy = meanVyQ + meanVyT ;
+SVGz = meanVzQ + meanVzT ;
+SVG_Mag_M=sqrt(SVGx^2+SVGy^2+SVGz^2);
+
 
 
 %% =============================================================================
@@ -239,7 +244,7 @@ SVG_Mag_M=sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(2)^2+SVG_axis_MO(3)^2);
 
 
 
-%% ============================ plot AUC on VegMag =============================
+%% ============================ plot AUC on Vector Magnitude =============================
 
 
 
