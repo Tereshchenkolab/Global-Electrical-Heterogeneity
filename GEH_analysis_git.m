@@ -1,10 +1,10 @@
 %
-% GEH calculation code V.1.1
+% GEH calculation code V.1
 % Erick Andres Perez Alday, PhD, <perezald@ohsu.edu>
 % Annabel Li-Pershing, BS, < lipershi@ohsu.edu>
 % Muammar Kabir, PhD, < muammar.kabir@gmail.com >
 % Larisa Tereshchenko, MD, PhD, < tereshch@ohsu.edu >
-% Last update:  February 13th, 2018
+% Last update: Friday 9th, February 2018
 
 clear
 clc
@@ -38,10 +38,18 @@ warning('OFF');
 
 % sampling frequency
 prompt='What is the sampling frequency in Hz';
-dlg_title='Sample Frequendy';
+dlg_title='Sample Frequency';
 fs_d = inputdlg(prompt,dlg_title,1);
 
+
+% Amplitude resolution
+prompt='What is the amplitude resolution in MicroVolts';
+dlg_title='Amplitude';
+amp_r = inputdlg(prompt,dlg_title,1);
+
+
 fs=str2num(fs_d{1});
+amp_r=str2num(amp_r{1});
 
 % load mat files
 [file_name,path_name] = uigetfile('*','Select file for GEH Analysis');
@@ -55,7 +63,7 @@ file_path        = fullfile(path_name,file_name);
 matfile          = matfile(file_path)
 
 %% ===================== load variables from .mat file ========================
-XYZ_median      = matfile.XYZ_M;
+XYZ_median      = matfile.XYZ_M*amp_r;
 R_VM            = matfile.R_VM;
 q_points_VM     = matfile.q_points_VM;
 s_points_VM     = matfile.s_points_VM;
@@ -100,6 +108,7 @@ if ~exist(strcat(Results_folder,excel_file_name))
     fprintf(fid1,'Mean SVG Magnitude \t');
     fprintf(fid1,'QT Interval \t');
     fprintf(fid1,'AUC of VectorMagnitude \t');
+    fprintf(fid1,'Wilson VG \t');
     fprintf(fid1,'\n \n');
     fclose(fid1);
 end
@@ -137,19 +146,30 @@ AUC_VM_QT = trapz(abs(VecMag(q_points_VM(1,1):te_points_VM(1,1)))) * spac_incr;
 CP=XYZ_median(OriginPoint_idx,:);
 % Y axis vector
 Ynew=[0,1,0];
+N_dat=length(q_points_VM(1,1):s_points_VM(1,1));
 
-% mean spatial QRS and T vectors
-meanVxQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),1)) * spac_incr;
-meanVxT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),1))* spac_incr;
-meanVyQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),2))* spac_incr;
-meanVyT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),2))* spac_incr;
-meanVzQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),3))* spac_incr;
-meanVzT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),3))* spac_incr;
 
-% QRS and T mean vector 
+% QRS and T integration: VG calc
+SumVGx=trapz(XYZ_median(q_points_VM(1,1):te_points_VM(1,1),1))*spac_incr;
+SumVGy=trapz(XYZ_median(q_points_VM(1,1):te_points_VM(1,1),2))*spac_incr;
+SumVGz=trapz(XYZ_median(q_points_VM(1,1):te_points_VM(1,1),3))*spac_incr;
+
+
+% QRS and T mean vector
+meanVxQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),1))/N_dat;
+meanVxT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),1))/N_dat;
+meanVyQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),2))/N_dat;
+meanVyT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),2))/N_dat;
+meanVzQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),3))/N_dat;
+meanVzT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),3))/N_dat;
+
+
+
+
+
+% QRS and T mean vector based on mean
 MEAN_QRSO=[meanVxQ meanVyQ meanVzQ];
 MEAN_TO=[meanVxT meanVyT meanVzT];
-
 
 % Q-S integral index length
 si_len=length(q_points_VM(1,1):s_points_VM(1,1));
@@ -164,9 +184,14 @@ QT_interval=timeM(te_points_VM(1,1))-timeM(q_points_VM(1,1));
 QRS_amp=sqrt(Raxis(1)^2+Raxis(2)^2+Raxis(3)^2);
 T_amp=sqrt(Taxis(1)^2+Taxis(2)^2+Taxis(3)^2);
 
-% SVG axis calculation based on QRS-T, the two mean calculations of QRS-T
+% SVG vector calculation based on QRS-T, the two mean calculations of QRS-T
+
 SVG_axis=sum([Taxis ; Raxis]);
 SVG_axis_MO=sum([MEAN_TO;MEAN_QRSO]);
+
+
+
+
 
 % Origin Point-P, Q-S and S-T vector calculation
 qs3 = XYZ_median(q_points_VM(1,1):s_points_VM(1,1),3);
@@ -220,20 +245,21 @@ EL_SVG_M=(rad2deg(acos(dot(SVG_axis_MO,Ynew)/(sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(
 
 
 % ========================== Magnitudes Calculation ============================
-% Magnitude of spatial peak and mean QRS vectors
+% Magnitude of QRS: peak, mean in amplitude
 QRS_Mag=sqrt(Raxis(1)^2+Raxis(2)^2+Raxis(3)^2);
 QRS_Mag_M=sqrt(MEAN_QRSO(1)^2+MEAN_QRSO(2)^2+MEAN_QRSO(3)^2);
 
-% Magnitude of spatial peak and mean T vectors
+% Magnitude of T: peak, mean in amplitude
 T_Mag=sqrt(Taxis(1)^2+Taxis(2)^2+Taxis(3)^2);
 T_Mag_M=sqrt(MEAN_TO(1)^2+MEAN_TO(2)^2+MEAN_TO(3)^2);
 
-% Magnitude of spatial peak and mean SVG vectors
+% Magnitude of SVG: peak, mean in amplitude
 SVG_Mag=sqrt(SVG_axis(1)^2+SVG_axis(2)^2+SVG_axis(3)^2);
-SVGx = meanVxQ + meanVxT ;
-SVGy = meanVyQ + meanVyT ;
-SVGz = meanVzQ + meanVzT ;
-SVG_Mag_M=sqrt(SVGx^2+SVGy^2+SVGz^2);
+SVG_Mag_M=sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(2)^2+SVG_axis_MO(3)^2);
+
+% Magnitude of WVG: Wilson's Ventricular Gradient
+
+WVG=sqrt((SumVGx^2) + (SumVGy^2) + (SumVGz^2));
 
 
 
@@ -244,7 +270,7 @@ SVG_Mag_M=sqrt(SVGx^2+SVGy^2+SVGz^2);
 
 
 
-%% ============================ plot AUC on Vector Magnitude =============================
+%% ============================ plot AUC on VegMag =============================
 
 
 
@@ -277,6 +303,10 @@ hold off
 
 %% =============================== GEH Plot ====================================
 
+map_c=hsv;
+map_c1=map_c(1:end-8,:);
+
+
 Fig3D=figure('visible','on','outerposition',[0 0 1400 1000]);
 ax3D = axes('Parent',Fig3D);
 %% plotting GEH vectors and loops
@@ -288,36 +318,39 @@ p3 = plot3([CP(:,3) MEAN_QRSO(3)],[CP(:,1) MEAN_QRSO(1)],[CP(:,2) MEAN_QRSO(2)],
 p4 = plot3([CP(:,3) MEAN_TO(3)],[CP(:,1) MEAN_TO(1)],[CP(:,2) MEAN_TO(2)],'g--','LineWidth',2,'DisplayName','Mean T');
 p5 = plot3([CP(:,3) SVG_axis(3)],[CP(:,1) SVG_axis(1)],[CP(:,2) SVG_axis(2)],'b','LineWidth',2, 'DisplayName', 'Peak SVG');
 p6 = plot3([CP(:,3) SVG_axis_MO(3)],[CP(:,1) SVG_axis_MO(1)],[CP(:,2) SVG_axis_MO(2)],'b--','LineWidth',2,'DisplayName','Mean SVG');
-qrs_color = [(0.1:0.9/(length(qs3)-1):1)',zeros(length(qs3),1),flipud((0.1:0.9/(length(qs3)-1):1)')];
+
 
 % for plotting in patch function, need to decimate the last data point in the following 2 leads
 qs1(end) = nan; qs2(end) = nan;
-qrs_loop=patch(qs3,qs1,qs2,fliplr(1:1:length(qs1)),'EdgeColor','interp','DisplayName','QRS Loop');
+qrs_loop=patch(qs3,qs1,qs2,(1:spac_incr:spac_incr*length(qs1)),'EdgeColor','interp','DisplayName','QRS Loop');
 
 % plot QRS loop point with the following
-qt_color = [flipud((.1:0.9/(length(qs3)-1):1)'),ones(length(qs3),1)/1.5,(0.1:0.9/(length(qs3)-1):1)'];
-
-
 for c_ind = 1:5:length(qs1)
-plot3(qs3(c_ind),qs1(c_ind),qs2(c_ind),'.','LineWidth',2,'Color',qt_color(c_ind,:),'MarkerSize',15 );
+scatter3(qs3(c_ind),qs1(c_ind),qs2(c_ind),20,spac_incr*c_ind,'filled' );
 end
 
 % for plotting in patch function, need to decimate the last data point in the following 2 leads
 st1(end) = nan; st2(end) = nan;
-st_loop=patch(st3,st1,st2,fliplr(1:1/(length(st1)-1):2),'EdgeColor','interp','DisplayName','T Loop');
+st_loop=patch(st3,st1,st2,(spac_incr*(length(qs1)+1):spac_incr:spac_incr*(length(qs1)+length(st1))),'EdgeColor','interp','DisplayName','T Loop');
 
-caxis([1 length(qs1)]);
+
 % plot T loop with the following
-st_color = [(0.1:0.9/(length(st3)-1):1)',zeros(length(st3),1),flipud((0.1:0.9/(length(st3)-1):1)')];
+%st_color = [(0.1:0.9/(length(st3)-1):1)',zeros(length(st3),1),flipud((0.1:0.9/(length(st3)-1):1)')];
 
 
 for c_ind = 1:5:length(st3)
-plot3(st3(c_ind),st1(c_ind),st2(c_ind),'.','LineWidth',2,'Color',st_color(c_ind,:),'MarkerSize',15);
+scatter3(st3(c_ind),st1(c_ind),st2(c_ind),20,spac_incr*(length(qs1)+c_ind),'filled');
 end
 
 % plot the projected lines to show SVG is the sum of QRS and T vectors
 plot3([Raxis(3) SVG_axis(3)], [Raxis(1) SVG_axis(1)],[Raxis(2) SVG_axis(2)],'--','Color', [0.8 0.8 0.8],'LineWidth',2);
 plot3([Taxis(3) SVG_axis(3)], [Taxis(1) SVG_axis(1)],[Taxis(2) SVG_axis(2)],'--','Color', [0.8 0.8 0.8],'LineWidth',2);
+
+map_c=hsv;
+map_c1=map_c(1:end-8,:);
+caxis([0 2*(length(qs1)+length(st1))]);
+colormap(map_c1)
+colorbar
 
 % uncomment this block for text annotation
 
@@ -441,6 +474,7 @@ fprintf(fid1,'%f \t',SVG_Mag);
 fprintf(fid1,'%f \t',SVG_Mag_M);
 fprintf(fid1,'%f \t',QT_interval);
 fprintf(fid1,'%f \t',AUC_VM_QT);
+fprintf(fid1,'%f \t',WVG);
 fprintf(fid1,'\n');
 fclose(fid1);
 
