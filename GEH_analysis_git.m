@@ -1,10 +1,10 @@
 %
-% GEH calculation code V.1
+% GEH calculation code V.1.11
 % Erick Andres Perez Alday, PhD, <perezald@ohsu.edu>
 % Annabel Li-Pershing, BS, < lipershi@ohsu.edu>
 % Muammar Kabir, PhD, < muammar.kabir@gmail.com >
 % Larisa Tereshchenko, MD, PhD, < tereshch@ohsu.edu >
-% Last update: Friday 9th, February 2018
+% Last update: February 14th, 2018
 
 clear
 clc
