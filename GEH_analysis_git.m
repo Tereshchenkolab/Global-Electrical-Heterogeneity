@@ -89,7 +89,7 @@ if ~exist(strcat(Results_folder,excel_file_name))
     fprintf(fid1,'peak SVG Azimuth_deg \t');
     fprintf(fid1,'area SVG Azimuth_deg \t');
     fprintf(fid1,'peak QRS Elevation_deg \t');
-    fprintf(fid1,'area SVG Elevation_deg \t');
+    fprintf(fid1,'area QRS Elevation_deg \t');
     fprintf(fid1,'peak T Elevation_deg \t');
     fprintf(fid1,'area T Elevation_deg \t');
     fprintf(fid1,'peak SVG Elevation_deg \t');
