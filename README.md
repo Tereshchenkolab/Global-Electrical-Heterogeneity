@@ -11,7 +11,7 @@ Erick Andres Perez Alday, PhD, <perezald@ohsu.edu>
 Annabel Li-Pershing, BS, <lipershi@ohsu.edu>
 Muammar Kabir, PhD, <muammar.kabir@gmail.com>
 Larisa Tereshchenko, MD, PhD, <tereshch@ohsu.edu>
-Last update: February 14th, 2018
+Last update: February 20th, 2018
   
 ### GEH Calculation
 See pdf file in the repository for GEH parameter calculation methods.
