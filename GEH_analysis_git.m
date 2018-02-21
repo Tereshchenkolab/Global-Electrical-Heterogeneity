@@ -1,10 +1,10 @@
 %
-% GEH calculation code V.1.11
+% GEH calculation code V.1.1
 % Erick Andres Perez Alday, PhD, <perezald@ohsu.edu>
 % Annabel Li-Pershing, BS, < lipershi@ohsu.edu>
 % Muammar Kabir, PhD, < muammar.kabir@gmail.com >
 % Larisa Tereshchenko, MD, PhD, < tereshch@ohsu.edu >
-% Last update: February 14th, 2018
+% Last update: February 20th, 2018
 
 clear
 clc
@@ -17,11 +17,10 @@ warning('OFF');
 %      2. matlab file containing the following:
 %        - XYZ median beat
 %        - index of QRS onset Vector Magnitudes
-%        - index of R on Vector Magnitudes
+%        - index of R peak on Vector Magnitudes
 %        - index of QRS offset Vector Magnitudes
-%        - index of t onset on Vector Magnitudes
-%        - index of t peak on Vector Magnitudes
-%        - index of t offset on Vector Magnitudes
+%        - index of T peak on Vector Magnitudes
+%        - index of T offset on Vector Magnitudes
 %        - index of origin point
 
 % Output:
@@ -69,7 +68,6 @@ q_points_VM     = matfile.q_points_VM;
 s_points_VM     = matfile.s_points_VM;
 tp_points_VM    = matfile.tp_points_VM;
 te_points_VM    = matfile.te_points_VM;
-ts_points_VM    = matfile.ts_points_VM;
 OriginPoint_idx = matfile.Opnt_Me(1,1);
 
 %% ============================  initiate excel file ===========================
@@ -82,33 +80,28 @@ end
 if ~exist(strcat(Results_folder,excel_file_name))
     fid1 = fopen(strcat(Results_folder,excel_file_name),'a');
     fprintf(fid1,'ID \t');
-    fprintf(fid1,'QRST Angle \t');
-    fprintf(fid1,'Mean QRST Angle \t');
-    fprintf(fid1,'QRS-SVG Angle \t');
-    fprintf(fid1,'Mean QRS-SVG Angle \t');
-    fprintf(fid1,'SVG-T Angle \t');
-    fprintf(fid1,'Mean SVG-T Angle \t');
-    fprintf(fid1,'Azimuth QRS \t');
-    fprintf(fid1,'Mean Azimuth QRS \t');
-    fprintf(fid1,'Azimuth T \t');
-    fprintf(fid1,'Mean Azimuth T \t');
-    fprintf(fid1,'Azimuth SVG \t');
-    fprintf(fid1,'Mean Azimuth SVG \t');
-    fprintf(fid1,'Elevation QRS \t');
-    fprintf(fid1,'Mean Elevation QRS \t');
-    fprintf(fid1,'Elevation T \t');
-    fprintf(fid1,'Mean Elevation T \t');
-    fprintf(fid1,'Elevation SVG \t');
-    fprintf(fid1,'Mean Elevation SVG \t');
-    fprintf(fid1,'QRS Magnitude \t');
-    fprintf(fid1,'Mean QRS Magnitude \t');
-    fprintf(fid1,'T Magnitude \t');
-    fprintf(fid1,'Mean T Magnitude \t');
-    fprintf(fid1,'SVG Magnitude \t');
-    fprintf(fid1,'Mean SVG Magnitude \t');
-    fprintf(fid1,'QT Interval \t');
-    fprintf(fid1,'AUC of VectorMagnitude \t');
-    fprintf(fid1,'Wilson VG \t');
+    fprintf(fid1,'peak QRST Angle_deg \t');
+    fprintf(fid1,'area QRST Angle_deg \t');
+    fprintf(fid1,'peak QRS Azimuth_deg \t');
+    fprintf(fid1,'area QRS Azimuth_deg \t');
+    fprintf(fid1,'peak T Azimuth_deg \t');
+    fprintf(fid1,'area T Azimuth_deg \t');
+    fprintf(fid1,'peak SVG Azimuth_deg \t');
+    fprintf(fid1,'area SVG Azimuth_deg \t');
+    fprintf(fid1,'peak QRS Elevation_deg \t');
+    fprintf(fid1,'area SVG Elevation_deg \t');
+    fprintf(fid1,'peak T Elevation_deg \t');
+    fprintf(fid1,'area T Elevation_deg \t');
+    fprintf(fid1,'peak SVG Elevation_deg \t');
+    fprintf(fid1,'area SVG Elevation_deg \t');
+    fprintf(fid1,'peak QRS Magnitude_uV \t');
+    fprintf(fid1,'area QRS_uVms \t');
+    fprintf(fid1,'peak T Magnitude_uV \t');
+    fprintf(fid1,'area T_uVms \t');
+    fprintf(fid1,'peak SVG Magnitude_uV \t');
+    fprintf(fid1,'QT Interval_ms \t');
+    fprintf(fid1,'AUC of QTVectorMagnitude_uVms \t');
+    fprintf(fid1,'Wilson SVG_uVms \t');
     fprintf(fid1,'\n \n');
     fclose(fid1);
 end
@@ -146,33 +139,30 @@ AUC_VM_QT = trapz(abs(VecMag(q_points_VM(1,1):te_points_VM(1,1)))) * spac_incr;
 CP=XYZ_median(OriginPoint_idx,:);
 % Y axis vector
 Ynew=[0,1,0];
-N_dat=length(q_points_VM(1,1):s_points_VM(1,1));
 
 
-% QRS and T integration: VG calc
+
+% QRS and T integration: for Wilson SVG calculation
 SumVGx=trapz(XYZ_median(q_points_VM(1,1):te_points_VM(1,1),1))*spac_incr;
 SumVGy=trapz(XYZ_median(q_points_VM(1,1):te_points_VM(1,1),2))*spac_incr;
 SumVGz=trapz(XYZ_median(q_points_VM(1,1):te_points_VM(1,1),3))*spac_incr;
 
 
-% QRS and T mean vector
-meanVxQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),1))/N_dat;
-meanVxT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),1))/N_dat;
-meanVyQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),2))/N_dat;
-meanVyT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),2))/N_dat;
-meanVzQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),3))/N_dat;
-meanVzT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),3))/N_dat;
+% QRS and T integration for area vectors
+meanVxQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),1))*spac_incr;
+meanVxT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),1))*spac_incr;
+meanVyQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),2))*spac_incr;
+meanVyT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),2))*spac_incr;
+meanVzQ=trapz(XYZ_median(q_points_VM(1,1):s_points_VM(1,1),3))*spac_incr;
+meanVzT=trapz(XYZ_median(s_points_VM(1,1):te_points_VM(1,1),3))*spac_incr;
 
 
 
-
-
-% QRS and T mean vector based on mean
+% QRS area and T area vectors based on integrals
 MEAN_QRSO=[meanVxQ meanVyQ meanVzQ];
 MEAN_TO=[meanVxT meanVyT meanVzT];
 
-% Q-S integral index length
-si_len=length(q_points_VM(1,1):s_points_VM(1,1));
+
 
 
 %% QT interval
@@ -180,15 +170,14 @@ timeM=((1:length(VecMag))/fs)*1000;
 QT_interval=timeM(te_points_VM(1,1))-timeM(q_points_VM(1,1));
 
 
-% QRS and T amplitude
+% peak vectors QRS and T amplitude
 QRS_amp=sqrt(Raxis(1)^2+Raxis(2)^2+Raxis(3)^2);
 T_amp=sqrt(Taxis(1)^2+Taxis(2)^2+Taxis(3)^2);
 
-% SVG vector calculation based on QRS-T, the two mean calculations of QRS-T
+% peak SVG vector and mean SVG vector calculation as vector sum of QRS and T vectors 
 
 SVG_axis=sum([Taxis ; Raxis]);
-SVG_axis_MO=sum([MEAN_TO;MEAN_QRSO]);
-
+SVG_MO=sum([MEAN_QRSO; MEAN_TO]);
 
 
 
@@ -205,57 +194,48 @@ st2 = XYZ_median(s_points_VM(1,1):te_points_VM(1,1),2);
 
 % ============================= Angle Claculation ==============================
 
-% QRS-T angle
+% peak QRS-T angle
 QRSTang=rad2deg(acos(dot(Raxis,Taxis)/(sqrt(Raxis(1)^2+Raxis(2)^2+Raxis(3)^2)*sqrt(Taxis(1)^2+Taxis(2)^2+Taxis(3)^2))));
 
-% QRS-T mean vector angle
+% mean QRS-T angle
 QRSTang_M=rad2deg(acos(dot(MEAN_QRSO,MEAN_TO)/(sqrt(MEAN_QRSO(1)^2+MEAN_QRSO(2)^2+MEAN_QRSO(3)^2)*sqrt(MEAN_TO(1)^2+MEAN_TO(2)^2+MEAN_TO(3)^2))));
 
-% QRS SVG Angle: peak, mean in amplitude
-QRSSVGang=rad2deg(acos(dot(Raxis,SVG_axis)/(sqrt(Raxis(1)^2+Raxis(2)^2+Raxis(3)^2)*sqrt(SVG_axis(1)^2+SVG_axis(2)^2+SVG_axis(3)^2))));
-QRSSVGang_M=rad2deg(acos(dot(MEAN_QRSO,SVG_axis_MO)/(sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(2)^2+SVG_axis_MO(3)^2)*sqrt(MEAN_QRSO(1)^2+MEAN_QRSO(2)^2+MEAN_QRSO(3)^2))));
-
-% T SVG Angle: peak, mean in amplitude
-SVGTang=rad2deg(acos(dot(SVG_axis,Taxis)/(sqrt(SVG_axis(1)^2+SVG_axis(2)^2+SVG_axis(3)^2)*sqrt(Taxis(1)^2+Taxis(2)^2+Taxis(3)^2))));
-SVGTang_M=rad2deg(acos(dot(SVG_axis_MO,MEAN_TO)/(sqrt(MEAN_TO(1)^2+MEAN_TO(2)^2+MEAN_TO(3)^2)*sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(2)^2+SVG_axis_MO(3)^2))));
-
-% Azimuth of QRS: peak, mean in amplitude
+% Azimuth of QRS: peak, area 
 AZ_OQ=(rad2deg(acos(Raxis(1)/sqrt(Raxis(1)^2+Raxis(3)^2))))*(((Raxis(3)<0)*-1)+((Raxis(3)>0)*1));
 AZ_OQM=(rad2deg(acos( MEAN_QRSO(1)/sqrt(MEAN_QRSO(1)^2+MEAN_QRSO(3)^2))))*(((MEAN_QRSO(3)<0)*-1)+((MEAN_QRSO(3)>0)*1));
 
-% Azimuth of T: peak, mean in amplitude
+% Azimuth of T: peak, area 
 AZ_OT=(rad2deg(acos(Taxis(1)/sqrt(Taxis(1)^2+Taxis(3)^2))))*(((Taxis(3)<0)*-1)+((Taxis(3)>0)*1));
 AZ_OTM=(rad2deg(acos(MEAN_TO(1)/sqrt(MEAN_TO(1)^2+MEAN_TO(3)^2))))*(((MEAN_TO(3)<0)*-1)+((MEAN_TO(3)>0)*1));
 
-% Azimuth of SVG: peak, mean in amplitude
+% Azimuth of SVG: peak, area 
 AZ_SVG=(rad2deg(acos(SVG_axis(1)/sqrt(SVG_axis(1)^2+SVG_axis(3)^2))))*(((SVG_axis(3)<0)*-1)+((SVG_axis(3)>0)*1));
-AZ_SVG_M=(rad2deg(acos(SVG_axis_MO(1)/sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(3)^2))))*(((SVG_axis_MO(3)<0)*-1)+((SVG_axis_MO(3)>0)*1));
+AZ_SVG_M=(rad2deg(acos(SVG_MO(1)/sqrt(SVG_MO(1)^2+SVG_MO(3)^2))))*(((SVG_MO(3)<0)*-1)+((SVG_MO(3)>0)*1));
 
-% Elevation of QRS: peak, mean in amplitude
+% Elevation of QRS: peak, area 
 EL_OQ=(rad2deg(acos(dot(Raxis,Ynew)/(sqrt(Raxis(1)^2+Raxis(2)^2+Raxis(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
 EL_OQM=(rad2deg(acos(dot(MEAN_QRSO,Ynew)/(sqrt(MEAN_QRSO(1)^2+MEAN_QRSO(2)^2+MEAN_QRSO(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
 
-% Elevation of T: peak, mean in amplitude
+% Elevation of T: peak, area 
 EL_OT=(rad2deg(acos(dot(Taxis,Ynew)/(sqrt(Taxis(1)^2+Taxis(2)^2+Taxis(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
 EL_OTM=(rad2deg(acos(dot(MEAN_TO,Ynew)/(sqrt(MEAN_TO(1)^2+MEAN_TO(2)^2+MEAN_TO(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
 
-% Elevation of SVG: peak, mean in amplitude
+% Elevation of SVG: peak, area 
 EL_SVG=(rad2deg(acos(dot(SVG_axis,Ynew)/(sqrt(SVG_axis(1)^2+SVG_axis(2)^2+SVG_axis(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
-EL_SVG_M=(rad2deg(acos(dot(SVG_axis_MO,Ynew)/(sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(2)^2+SVG_axis_MO(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
+EL_SVG_M=(rad2deg(acos(dot(SVG_MO,Ynew)/(sqrt(SVG_MO(1)^2+SVG_MO(2)^2+SVG_MO(3)^2)*sqrt(Ynew(1)^2+Ynew(2)^2+Ynew(3)^2)))));
 
 
 % ========================== Magnitudes Calculation ============================
-% Magnitude of QRS: peak, mean in amplitude
+% Magnitude of QRS: peak, area
 QRS_Mag=sqrt(Raxis(1)^2+Raxis(2)^2+Raxis(3)^2);
 QRS_Mag_M=sqrt(MEAN_QRSO(1)^2+MEAN_QRSO(2)^2+MEAN_QRSO(3)^2);
 
-% Magnitude of T: peak, mean in amplitude
+% Magnitude of T: peak, area
 T_Mag=sqrt(Taxis(1)^2+Taxis(2)^2+Taxis(3)^2);
 T_Mag_M=sqrt(MEAN_TO(1)^2+MEAN_TO(2)^2+MEAN_TO(3)^2);
 
-% Magnitude of SVG: peak, mean in amplitude
+% Magnitude of SVG: peak
 SVG_Mag=sqrt(SVG_axis(1)^2+SVG_axis(2)^2+SVG_axis(3)^2);
-SVG_Mag_M=sqrt(SVG_axis_MO(1)^2+SVG_axis_MO(2)^2+SVG_axis_MO(3)^2);
 
 % Magnitude of WVG: Wilson's Ventricular Gradient
 
@@ -270,7 +250,7 @@ WVG=sqrt((SumVGx^2) + (SumVGy^2) + (SumVGz^2));
 
 
 
-%% ============================ plot AUC on VegMag =============================
+%% ============================ plot AUC on Vector Magnitude =============================
 
 
 
@@ -314,10 +294,7 @@ hold on
 p1 = plot3([CP(:,3) Raxis(3)],[CP(:,1) Raxis(1)],[CP(:,2) Raxis(2)],'r','LineWidth',2, 'DisplayName', 'Peak QRS');
 p2 = plot3([CP(:,3) Taxis(3)],[CP(:,1) Taxis(1)],[CP(:,2) Taxis(2)],'g','LineWidth',2, 'DisplayName', 'Peak T');
 p7 = plot3(CP(:,3),CP(:,1),CP(:,2),'m+','LineWidth',3,'DisplayName', 'Ori. point');
-p3 = plot3([CP(:,3) MEAN_QRSO(3)],[CP(:,1) MEAN_QRSO(1)],[CP(:,2) MEAN_QRSO(2)],'r--','LineWidth',2,'DisplayName','Mean QRS');
-p4 = plot3([CP(:,3) MEAN_TO(3)],[CP(:,1) MEAN_TO(1)],[CP(:,2) MEAN_TO(2)],'g--','LineWidth',2,'DisplayName','Mean T');
 p5 = plot3([CP(:,3) SVG_axis(3)],[CP(:,1) SVG_axis(1)],[CP(:,2) SVG_axis(2)],'b','LineWidth',2, 'DisplayName', 'Peak SVG');
-p6 = plot3([CP(:,3) SVG_axis_MO(3)],[CP(:,1) SVG_axis_MO(1)],[CP(:,2) SVG_axis_MO(2)],'b--','LineWidth',2,'DisplayName','Mean SVG');
 
 
 % for plotting in patch function, need to decimate the last data point in the following 2 leads
@@ -352,14 +329,6 @@ caxis([0 2*(length(qs1)+length(st1))]);
 colormap(map_c1)
 colorbar
 
-% uncomment this block for text annotation
-
-% text attachment
-%text(mean([CP(:,3) Raxis(3)]),mean([CP(:,1) Raxis(1)]),mean([CP(:,2) Raxis(2)]), '\leftarrow  QRS', 'FontSize', 18,'HorizontalAlignment','left');
-%text( Taxis(3),Taxis(1),Taxis(2), '\leftarrow T', 'FontSize', 18, 'HorizontalAlignment','left');
-%text(mean([CP(:,3) SVG_axis(3)]),mean([CP(:,1) SVG_axis(1)]),mean([CP(:,2) SVG_axis(2)]),'\leftarrow SVG', 'FontSize', 18, 'HorizontalAlignment','left');
-%text(qs3(round(length(qs3)*3/4)),qs1(round(length(qs1)*3/4)),qs2(round(length(qs2)*3/4)),' \leftarrow QRS Loop', 'FontSize', 18, 'HorizontalAlignment','left');
-%text(st3(round(length(st3)*3/5)),st1(round(length(st1)*3/5)),st2(round(length(st2)*3/5)),'\leftarrow T Loop', 'FontSize', 18, 'HorizontalAlignment','left');
 
 
 set(gca,'YDir','reverse')
@@ -440,7 +409,7 @@ view(290,60);
 hold off
 
 
-lgd = legend([p1 p3 p2 p4 p5 p6 p7 qrs_loop st_loop],'location','bestoutside');
+lgd = legend([p1 p2 p5 p7 qrs_loop st_loop],'location','bestoutside');
 title(lgd,file_ID{1});
 
 %% =============================================================================
@@ -450,10 +419,6 @@ fid1 = fopen(strcat(Results_folder,excel_file_name),'a');
 fprintf(fid1,'%s \t',file_ID{1});
 fprintf(fid1,'%f \t',QRSTang);
 fprintf(fid1,'%f \t',QRSTang_M);
-fprintf(fid1,'%f \t',QRSSVGang);
-fprintf(fid1,'%f \t',QRSSVGang_M);
-fprintf(fid1,'%f \t',SVGTang);
-fprintf(fid1,'%f \t',SVGTang_M);
 fprintf(fid1,'%f \t',AZ_OQ);
 fprintf(fid1,'%f \t',AZ_OQM);
 fprintf(fid1,'%f \t',AZ_OT);
@@ -471,7 +436,6 @@ fprintf(fid1,'%f \t',QRS_Mag_M);
 fprintf(fid1,'%f \t',T_Mag);
 fprintf(fid1,'%f \t',T_Mag_M);
 fprintf(fid1,'%f \t',SVG_Mag);
-fprintf(fid1,'%f \t',SVG_Mag_M);
 fprintf(fid1,'%f \t',QT_interval);
 fprintf(fid1,'%f \t',AUC_VM_QT);
 fprintf(fid1,'%f \t',WVG);
@@ -506,7 +470,7 @@ end
 % Save to a new MAT file
 save(strcat(Mat_folder,'/',file_ID{1},'.mat'), 'CP','AZ_OQ', 'AZ_OQM', 'AZ_OT', 'AZ_OTM', 'AZ_SVG', 'AZ_SVG_M', ...
     'EL_OQ', 'EL_OQM','EL_OT', 'EL_OTM', 'EL_SVG', 'EL_SVG_M', 'MEAN_QRSO', 'MEAN_TO', ...
-    'QRSTang', 'QRSTang_M', 'QRSSVGang', 'QRSSVGang_M', 'SVGTang', 'SVGTang_M','SVG_axis', 'SVG_axis_MO', 'SVG_Mag', 'SVG_Mag_M', 'Taxis');
+    'QRSTang', 'QRSTang_M', 'T_Mag', 'T_Mag_M', 'QRS_Mag', 'QRS_Mag_M', 'SVG_axis',  'SVG_Mag', 'Taxis', 'AUC_VM_QT', 'WVG');
 
 %% =============================================================================
 
