@@ -177,7 +177,7 @@ T_amp=sqrt(Taxis(1)^2+Taxis(2)^2+Taxis(3)^2);
 % peak SVG vector and mean SVG vector calculation as vector sum of QRS and T vectors 
 
 SVG_axis=sum([Taxis ; Raxis]);
-SVG_MO=sum([MEAN_QRSO; MEAN_TO]);
+SVG_MO=sum([MEAN_TO; MEAN_QRSO]);
 
 
 
