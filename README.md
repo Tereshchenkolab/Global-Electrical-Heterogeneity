@@ -29,6 +29,6 @@ Raw 12-lead ECG file (12LECG.mat) is provided to illustrate Kors transformation 
 ### Manuscripts to reference:
 Waks JW, Sitlani CM, Soliman EZ, Kabir M, Ghafoori E, Biggs ML, Henrikson CA, Sotoodehnia N, Biering-Sorensen T, Agarwal SK, Siscovick DS, Post WS, Solomon SD, Buxton AE, Josephson ME and Tereshchenko LG. Global Electric Heterogeneity Risk Score for Prediction of Sudden Cardiac Death in the General Population: The Atherosclerosis Risk in Communities (ARIC) and Cardiovascular Health (CHS) Studies. Circulation. 2016;133:2222-2234.
 
-and
+Thomas JA, A Perez-Alday E, Junell A, Newton K, Hamilton C, Li-Pershing Y, German D, Bender A, Tereshchenko LG. Vectorcardiogram in athletes: The Sun Valley Ski Study. Ann Noninvasive Electrocardiol. 2019 May;24(3):e12614. doi: 10.1111/anec.12614. Epub 2018 Nov 7. PubMed PMID: 30403442; PubMed Central PMCID: PMC6476648.
 
-Jason A. Thomas, Erick A. Perez‐Alday, Allison Junell, Kelley Newton, Christopher Hamilton, Yin Li‐Pershing, David German, Aron Bender, Larisa G. Tereshchenko. Vectorcardiogram in athletes: The Sun Valley Ski Study. Ann Noninvasive Electrocardiol. 2018;e12614. https://doi.org/10.1111/anec.12614
+Perez-Alday EA, Bender A, German D, Mukundan SV, Hamilton C, Thomas JA, Li-Pershing Y, Tereshchenko LG. Dynamic predictive accuracy of electrocardiographic biomarkers of sudden cardiac death within a survival framework: the Atherosclerosis Risk in Communities (ARIC) study. BMC Cardiovasc Disord. 2019 Nov 14;19(1):255. doi: 10.1186/s12872-019-1234-9. PubMed PMID: 31726979; PubMed Central PMCID: PMC6854807
