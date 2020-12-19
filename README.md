@@ -3,7 +3,7 @@
 ## Table of Content
   - GEH Calculation
   - GEH MATLAB Code
-  - MATLAB Code to calculate RR' interval for retresented in median beat cardiac cycle
+  - MATLAB Code to calculate RR' interval for median beat cardiac cycle
   - Test file (XYZ signal)
   - Test file for Kors transformation (12 lead ECG signal)
   - Kors transformation MATLAB Code
