@@ -36,6 +36,6 @@ Thomas JA, A Perez-Alday E, Junell A, Newton K, Hamilton C, Li-Pershing Y, Germa
 Perez-Alday EA, Bender A, German D, Mukundan SV, Hamilton C, Thomas JA, Li-Pershing Y, Tereshchenko LG. Dynamic predictive accuracy of electrocardiographic biomarkers of sudden cardiac death within a survival framework: the Atherosclerosis Risk in Communities (ARIC) study. BMC Cardiovasc Disord. 2019 Nov 14;19(1):255. doi: 10.1186/s12872-019-1234-9. PubMed PMID: 31726979; PubMed Central PMCID: PMC6854807
 
 ### Relationships between SAIQRST and VMQTi (Vector magnitude QT integral):
-#### VMQTi = 0.68*SAIQRST (GEHCO data)
-#### SAIQRST = 1.43*VMQTi (GEHCO data)
+#### VMQTi = 0.68*SAIQRST (GEHCO data) = 0.62*SAIQRST (HCHS/SOL data)
+#### SAIQRST = 1.43*VMQTi (GEHCO data) = 1.59*VMQTi (HCHS/SOL data) 
 
